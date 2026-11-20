@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>格物 GeWu · 重走物理学史</title>
+<script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+<style>
+  :root{--bg:#fcfcfc;--ink:#17181c;--sub:#8b8b90;--line:#e7e7e9;--accent:#3056d3;--accent-weak:#eef1fd}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px 96px}
+  /* 顶部 */
+  header{display:flex;justify-content:space-between;align-items:center;padding:28px 0}
+  .logo{font-size:15px;letter-spacing:3px;font-weight:500}
+  .logo span{color:var(--accent)}
+  header .sub{font-size:12px;color:var(--sub);letter-spacing:1px}
+  /* Hero */
+  .hero{padding:56px 0 48px}
+  .hero h1{font-size:40px;font-weight:300;letter-spacing:1px;line-height:1.35}
+  .hero h1 b{font-weight:600}
+  .hero p{color:var(--sub);margin-top:14px;max-width:560px;font-size:15px}
+  /* 模块 */
+  .sec-label{font-size:12px;letter-spacing:3px;color:var(--sub);margin:36px 0 18px;display:flex;align-items:center;gap:12px}
+  .sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
+  .mods{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+  .mod{border:1px solid var(--line);border-radius:14px;background:#fff;padding:26px 12px 20px;text-align:center;cursor:pointer;transition:border-color .2s,transform .2s;position:relative}
+  .mod:hover{border-color:var(--ink)}
+  .mod.open:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .mod svg{width:34px;height:34px;stroke:var(--ink);stroke-width:1.3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .mod.open svg{stroke:var(--accent)}
+  .mod .name{font-size:16px;margin-top:10px;letter-spacing:2px}
+  .mod .st{font-size:11px;color:var(--sub);margin-top:4px}
+  .mod.locked{cursor:not-allowed}
+  .mod.locked svg{stroke:#c9c9cd}
+  .mod.locked .name{color:#c9c9cd}
+  .mod.open{border-color:var(--accent)}
+  /* 知识地图 */
+  #map{display:none;margin-top:8px}
+  .map-head{display:flex;justify-content:space-between;align-items:baseline;margin-top:40px}
+  .map-head h2{font-size:22px;font-weight:500}
+  .map-head .muted{font-size:13px;color:var(--sub)}
+  .chain{display:flex;gap:0;margin-top:26px;overflow-x:auto;padding-bottom:8px}
+  .node{min-width:172px;position:relative;padding:18px 16px 16px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-right:26px;cursor:pointer;transition:border-color .2s,transform .2s}
+  .node:last-child{margin-right:0}
+  .node::after{content:"";position:absolute;right:-19px;top:50%;width:12px;height:1px;background:#c9c9cd}
+  .node:last-child::after{display:none}
+  .node:hover{transform:translateY(-2px)}
+  .node.playable{border-color:var(--accent)}
+  .node.playable:hover{border-color:var(--accent);box-shadow:0 4px 18px rgba(48,86,211,.12)}
+  .node.locked{opacity:.55;cursor:not-allowed}
+  .node .no{font-size:11px;color:var(--sub);letter-spacing:2px}
+  .node .t{font-size:15px;font-weight:500;margin-top:6px}
+  .node .d{font-size:12px;color:var(--sub);margin-top:6px;line-height:1.6;min-height:56px}
+  .node .go{display:inline-block;margin-top:10px;font-size:12px;color:var(--accent)}
+  .node.locked .go{color:var(--sub)}
+  .node .done-mark{position:absolute;top:12px;right:12px;font-size:11px;color:var(--accent)}
+  .note{margin-top:20px;font-size:13px;color:var(--sub);border-left:2px solid var(--line);padding-left:14px}
+  .note b{color:var(--ink);font-weight:500}
+  footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--sub);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  footer a{color:var(--sub)}
+  /* toast */
+  #toast{position:fixed;left:50%;bottom:36px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13px;padding:10px 22px;border-radius:99px;opacity:0;pointer-events:none;transition:opacity .3s}
+  @media(max-width:640px){.mods{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:30px}}
+</style>
+</head>
+<body>
+<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">格物：重走物理学史，声光电力热五大板块互动游戏</h1>
+<div class="wrap">
+  <header>
+    <div class="logo">格物 <span>GeWu</span></div>
+    <div class="sub">重走物理学史 · RDFZ AI Challenge 2026</div>
+  </header>
+
+  <section class="hero">
+    <h1>别背结论。<br><b>自己把物理发现一遍。</b></h1>
+    <p>每一个板块，都从一件真实的怪事开始：你先提问，再动手实验，最后看看历史上的物理学家当年是怎么做的。你走的路，和他们走过的路，会并排放在一起。</p>
+  </section>
+
+  <div class="sec-label">选择一个板块</div>
+  <div class="mods" id="mods">
+    <div class="mod locked" data-m="sound">
+      <svg viewBox="0 0 34 34"><path d="M6 17h3l3-6 4 12 3-9 2 3h7"/></svg>
+      <div class="name">声</div><div class="st">建设中</div>
+    </div>
+    <div class="mod locked" data-m="light">
+      <svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="5"/><path d="M17 4v4M17 26v4M4 17h4M26 17h4M8 8l3 3M23 23l3 3M26 8l-3 3M11 23l-3 3"/></svg>
+      <div class="name">光</div><div class="st">建设中</div>
+    </div>
+    <div class="mod open" data-m="dian">
+      <svg viewBox="0 0 34 34"><path d="M19 4 8 19h7l-2 11 13-16h-8l1-10z"/></svg>
+      <div class="name">电</div><div class="st">2 / 6 关开放</div>
+    </div>
+    <div class="mod locked" data-m="heat">
+      <svg viewBox="0 0 34 34"><path d="M14 6a3 3 0 0 1 6 0v13a6 6 0 1 1-6 0z"/><circle cx="17" cy="24" r="2"/></svg>
+      <div class="name">热</div><div class="st">建设中</div>
+    </div>
+    <div class="mod locked" data-m="force">
+      <svg viewBox="0 0 34 34"><path d="M5 26 26 8M26 8h-8M26 8v8M5 26h8M5 26v-8"/></svg>
+      <div class="name">力</div><div class="st">建设中</div>
+    </div>
+  </div>
+
+  <!-- 电学知识地图 -->
+  <section id="map">
+    <div class="map-head">
+      <h2>电 · 发现之路</h2>
+      <span class="muted">从任何一关都可以直接进入</span>
+    </div>
+    <div class="chain" id="chain">
+      <div class="node playable" onclick="location.href='game-friction.html'">
+        <div class="done-mark" id="done1" style="display:none">✓ 已通关</div>
+        <div class="no">01 · 初中</div>
+        <div class="t">琥珀之谜</div>
+        <div class="d">梳子为什么能吸住纸屑？从 2600 年前的琥珀讲起。</div>
+        <span class="go">进入 →</span>
+      </div>
+      <div class="node locked">
+        <div class="no">02 · 初中</div>
+        <div class="t">雷电的本质</div>
+        <div class="d">天上的闪电，和梳子上的火花，是同一种东西吗？</div>
+        <span class="go">建设中</span>
+      </div>
+      <div class="node locked">
+        <div class="no">03 · 初中</div>
+        <div class="t">两种电荷</div>
+        <div class="d">为什么有的吸、有的斥？杜菲的分拣实验。</div>
+        <span class="go">建设中</span>
+      </div>
+      <div class="node playable" onclick="location.href='game-coulomb.html'">
+        <div class="done-mark" id="done4" style="display:none">✓ 已通关</div>
+        <div class="no">04 · 初高中</div>
+        <div class="t">库仑定律</div>
+        <div class="d">亮出你对电的解释，看看和哪位科学家想到一起——走他的路，对的走到底，错的亲手修正它。</div>
+        <span class="go">进入 →</span>
+      </div>
+      <div class="node locked">
+        <div class="no">05 · 初高中</div>
+        <div class="t">电流的诞生</div>
+        <div class="d">青蛙腿的抽动，引出伏打电堆——第一块电池。</div>
+        <span class="go">建设中</span>
+      </div>
+      <div class="node locked">
+        <div class="no">06 · 高中</div>
+        <div class="t">磁生电</div>
+        <div class="d">法拉第十年执念：磁铁能不能"变"出电来？</div>
+        <span class="go">建设中</span>
+      </div>
+    </div>
+    <p class="note">六关是一条完整的推理链：琥珀之谜发现"电"的存在，雷电实验证明天上地下是同一种东西，杜菲分出两种电荷，<b>库仑把力变成公式</b>，伏打让电持续流动，法拉第让磁生出电。<b>但你不必从头玩起</b>——每一关都是独立的游戏，从任何一关进入都能玩懂；只有连起来通关，才能看到这条链完整的样子。</p>
+  </section>
+
+  <footer>
+    <span>格物 GeWu · 原型 v0.2 · 反馈入口见项目 README</span>
+    <span>动效 <a href="https://github.com/juliangarnier/anime" target="_blank">anime.js (MIT)</a> · 实验模拟思路参考 <a href="https://phet.colorado.edu/" target="_blank">PhET</a></span>
+  </footer>
+</div>
+<div id="toast"></div>
+<script>
+const toast=document.getElementById('toast');
+function showToast(t){toast.textContent=t;toast.style.opacity=1;clearTimeout(toast._h);toast._h=setTimeout(()=>toast.style.opacity=0,1800);}
+document.querySelectorAll('.mod').forEach(m=>{
+  m.addEventListener('click',()=>{
+    if(m.classList.contains('open')){
+      document.getElementById('map').style.display='block';
+      showToast('电学 · 发现之路');
+      if(window.anime)anime({targets:'#chain .node',translateY:[14,0],opacity:[0,1],delay:anime.stagger(70),duration:520,easing:'easeOutQuad'});
+      document.getElementById('map').scrollIntoView({behavior:'smooth',block:'start'});
+    }else{
+      showToast('「'+m.querySelector('.name').textContent+'」板块建设中，先去玩「电」吧');
+    }
+  });
+});
+try{
+  const p=JSON.parse(localStorage.getItem('gewu-progress')||'{}');
+  if(p.dian01)document.getElementById('done1').style.display='block';
+  if(p.dian04)document.getElementById('done4').style.display='block';
+}catch(e){}
+</script>
+</body>
+</html>
