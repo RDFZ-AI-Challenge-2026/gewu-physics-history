@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>格物 · 电 01 · 琥珀之谜</title>
+<script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+<style>
+  :root{--bg:#fcfcfc;--ink:#17181c;--sub:#8b8b90;--line:#e7e7e9;--accent:#3056d3;--accent-weak:#eef1fd;--panel:#ffffff}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:0 24px 96px}
+  header{display:flex;justify-content:space-between;align-items:center;padding:24px 0}
+  .back{font-size:13px;color:var(--sub);text-decoration:none}
+  .back:hover{color:var(--accent)}
+  .lv{font-size:13px;letter-spacing:2px;color:var(--sub)}
+  h1{font-size:30px;font-weight:300;letter-spacing:1px}
+  h1 b{font-weight:600}
+  .hero-sub{color:var(--sub);font-size:14px;margin-top:6px}
+  /* 步骤 */
+  .steps{display:flex;align-items:center;gap:0;margin:30px 0 34px}
+  .stp{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:6px}
+  .stp .n{width:22px;height:22px;border:1px solid var(--line);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;background:#fff}
+  .stp.on{color:var(--ink)} .stp.on .n{border-color:var(--accent);color:var(--accent)}
+  .stp.done .n{background:var(--ink);border-color:var(--ink);color:#fff}
+  .ln{flex:1;height:1px;background:var(--line);margin:0 10px;min-width:14px}
+  /* 卡片 */
+  .stage{display:none;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:34px 34px 30px}
+  .stage.show{display:block}
+  .tag{font-size:12px;letter-spacing:3px;color:var(--accent);margin-bottom:10px}
+  h2{font-size:21px;font-weight:500;margin-bottom:14px}
+  p{font-size:15px;margin-bottom:10px}
+  .muted{color:var(--sub);font-size:13px}
+  .btn{display:inline-block;background:var(--ink);color:#fff;border:none;font-size:14px;padding:11px 24px;border-radius:9px;cursor:pointer;font-family:inherit;margin-top:14px}
+  .btn:hover{opacity:.85}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--ink);opacity:1}
+  .center{text-align:center}
+  canvas{display:block;width:100%;border-radius:12px}
+  /* 提问 */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+  .chip{font-size:13px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 15px;cursor:pointer;color:var(--ink);font-family:inherit}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:15px;font-family:inherit;resize:vertical;min-height:84px;background:#fff}
+  textarea:focus{outline:none;border-color:var(--accent)}
+  .reply{border-left:2px solid var(--accent);padding:10px 16px;border-radius:0 8px 8px 0;font-size:14px;margin-top:14px;display:none;background:var(--accent-weak)}
+  .reply.show{display:block}
+  /* 实验台 */
+  .labbar{display:flex;gap:14px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .meter{flex:1;min-width:180px}
+  .meter .track{height:2px;background:var(--line);margin-top:8px}
+  .meter .fill{height:100%;width:0;background:var(--accent);transition:width .12s}
+  .mini{font-size:12px;color:var(--sub);padding:7px 14px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font-family:inherit}
+  .mini:hover{border-color:var(--ink)}
+  .notebook{margin-top:20px;border-top:1px solid var(--line);padding-top:18px}
+  .notebook h3{font-size:15px;font-weight:500;margin-bottom:8px}
+  /* 史料剧场 */
+  .theatre{position:relative}
+  #thc{background:#f6f6f7}
+  .thbar{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+  .dots{display:flex;gap:6px}
+  .dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+  .dots i.on{background:var(--accent)}
+  .subtitle{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-size:14px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.6);padding:0 30px;pointer-events:none;transition:opacity .4s}
+  /* 尾声 */
+  .end-links{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+  footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--sub);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  footer a{color:var(--sub)}
+  .pagenav{position:fixed;left:0;right:0;bottom:0;background:rgba(252,252,252,.92);backdrop-filter:blur(6px);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:10px 24px;z-index:9}
+  .pagenav button{font-family:inherit;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 20px;cursor:pointer;color:var(--ink)}
+  .pagenav button:hover{border-color:var(--ink)}
+  .pagenav button:disabled{opacity:.35;cursor:not-allowed}
+  #pnum{font-size:12px;color:var(--sub);letter-spacing:2px}
+  .hintbox{border:1px dashed var(--line);border-radius:10px;padding:10px 16px;font-size:13px;color:var(--sub);margin-top:12px;display:none}
+  .hintbox.show{display:block}
+  .hintbox b{color:var(--ink);font-weight:500}
+  #reportOut{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 20px;font-size:13px;white-space:pre-wrap;font-family:"SF Mono",Menlo,Consolas,monospace;line-height:1.8;max-height:360px;overflow:auto;display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="index.html">← 返回发现之路</a>
+    <span class="lv">电 · 01 · 初中</span>
+  </header>
+
+  <h1>琥珀之谜 <b>/ 摩擦起电</b></h1>
+  <div class="hero-sub">2600 年前的一件怪事，今天轮到你来解释。</div>
+
+  <div class="steps" id="steps">
+    <span class="stp on"><span class="n">1</span>现象</span><span class="ln"></span>
+    <span class="stp"><span class="n">2</span>提问</span><span class="ln"></span>
+    <span class="stp"><span class="n">3</span>实验</span><span class="ln"></span>
+    <span class="stp"><span class="n">4</span>猜想</span><span class="ln"></span>
+    <span class="stp"><span class="n">5</span>回看历史</span>
+  </div>
+
+  <!-- 1 现象 -->
+  <section class="stage show" id="s1">
+    <div class="tag">现象</div>
+    <h2>先看一件怪事</h2>
+    <p>用塑料梳子梳几分钟头发，再把它凑近桌上的碎纸屑——</p>
+    <canvas id="cv1" width="680" height="300"></canvas>
+    <div class="center"><button class="btn ghost" id="btnScene">▶ 再看一遍</button></div>
+    <p style="margin-top:18px">纸屑没有生命，梳子也没碰到它们，它们却自己跳了起来。两件物体之间明明是空的，什么都没有。</p>
+    <div class="center"><button class="btn" id="go2">我有个问题想问 →</button></div>
+  </section>
+
+  <!-- 2 提问 -->
+  <section class="stage" id="s2">
+    <div class="tag">提问</div>
+    <h2>你想弄明白什么？</h2>
+    <p>科学不从答案开始，从问题开始。写下你现在最想问的一个问题——觉得幼稚也没关系，这个问题没有对错。</p>
+    <div class="chips">
+      <button class="chip">为什么摩擦过的梳子能吸住纸屑？</button>
+      <button class="chip">吸住之后为什么又掉下来了？</button>
+      <button class="chip">湿梳子还吸得住吗？</button>
+      <button class="chip">梳子和头发之间发生了什么？</button>
+    </div>
+    <textarea id="qIn" placeholder="用你自己的话写下来……"></textarea>
+    <div class="reply" id="qRe"></div>
+    <div class="center">
+      <button class="btn" id="askBtn">说出我的问题</button>
+      <button class="btn ghost" id="go3" style="display:none">带着问题做实验 →</button>
+    </div>
+    <p class="muted" style="margin-top:12px">正式版中，这一步由 AI 判断你的问题与历史上关键问题的距离，并像导师一样追问你。原型阶段先用规则代替。</p>
+  </section>
+
+  <!-- 3 实验 -->
+  <section class="stage" id="s3">
+    <div class="tag">实验</div>
+    <h2>实验台</h2>
+    <p>器材：毛衣、塑料梳、碎纸屑。怎么用由你决定。</p>
+    <canvas id="lab" width="680" height="320" style="touch-action:none;cursor:grab"></canvas>
+    <div class="labbar">
+      <div class="meter"><span class="muted">梳子上的神秘积累物</span><div class="track"><div class="fill" id="fill"></div></div></div>
+      <button class="mini" id="wetBtn">打湿梳子</button>
+      <button class="mini" id="resetBtn">复位</button>
+    </div>
+    <div class="hintbox" id="labHint"></div>
+    <div style="margin-top:8px"><button class="mini" id="labHintBtn">我需要提示（共 2 条，用完即止）</button></div>
+    <div class="notebook">
+      <h3>实验记录本</h3>
+      <p class="muted" style="margin-bottom:10px">把你的尝试和观察写在这里——这是你的实验记录，最后的实验报告会用到它。</p>
+      <textarea id="nbIn" placeholder="你做了哪些尝试？分别发生了什么？写下你观察到的规律……"></textarea>
+    </div>
+    <div class="center"><button class="btn" id="go4">记录完毕 → 说猜想</button></div>
+  </section>
+
+  <!-- 4 猜想 -->
+  <section class="stage" id="s4">
+    <div class="tag">猜想</div>
+    <h2>用一句话解释它</h2>
+    <p>不看任何资料。基于你刚才亲手做出来的实验，说说你认为：</p>
+    <p><b>摩擦到底让梳子发生了什么？这种能隔空吸纸屑的东西，你最合理的猜想是什么？</b></p>
+    <textarea id="gIn" placeholder="大胆写。历史上的人猜错过无数次，猜想本来就允许错……"></textarea>
+    <div class="center"><button class="btn" id="gBtn">提交猜想</button></div>
+    <div class="reply" id="gRe"></div>
+    <div class="center"><button class="btn ghost" id="go5" style="display:none">现在，回看 2600 年的历史 →</button></div>
+  </section>
+
+  <!-- 5 史料剧场 -->
+  <section class="stage" id="s5">
+    <div class="tag">回看历史</div>
+    <h2>你刚才走的路，人类走了 2600 年</h2>
+    <div class="theatre">
+      <canvas id="thc" width="680" height="300"></canvas>
+      <div class="subtitle" id="thSub"></div>
+    </div>
+    <div class="thbar">
+      <div class="dots" id="thDots"><i class="on"></i><i></i><i></i></div>
+      <div>
+        <button class="mini" id="thReplay">↺ 重播本幕</button>
+        <button class="mini" id="thNext">下一幕 →</button>
+      </div>
+    </div>
+    <div id="thEnd" style="display:none">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;margin:18px 0 10px" id="cmpTbl">
+        <tr style="color:#8b8b90"><th style="text-align:left;font-weight:500;padding:8px;border-bottom:1px solid #e7e7e9">你的路径</th><th style="text-align:left;font-weight:500;padding:8px;border-bottom:1px solid #e7e7e9">历史的路径</th></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f0f0f2">看到怪事：纸屑自己跳起来</td><td style="padding:8px;border-bottom:1px solid #f0f0f2">泰勒斯看到草屑飞向琥珀</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f0f0f2">提出自己的问题</td><td style="padding:8px;border-bottom:1px solid #f0f0f2">人类困惑了两千多年，一度以为是灵魂</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f0f0f2">动手实验、记录规律</td><td style="padding:8px;border-bottom:1px solid #f0f0f2">吉尔伯特试了几十种材料，写下《论磁》</td></tr>
+        <tr><td style="padding:8px">说出自己的猜想</td><td style="padding:8px">电：摩擦时发生了电荷转移</td></tr>
+      </table>
+      <p>你没有背"摩擦起电"这四个字——<b>你经历了它被发现的那一刻。</b></p>
+      <p class="muted">留给你的追问：摩擦时转移的到底是什么？（提示：原子中比原子小得多的那种粒子。它在"库仑定律"一关等你。）</p>
+
+      <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:18px">
+        <h3 style="font-size:15px;font-weight:500">本关知识点来源</h3>
+        <p class="muted" style="margin:8px 0 2px">· 泰勒斯琥珀吸草屑的记载与"灵魂"之说：亚里士多德《论灵魂》转述；郭奕玲、沈慧君《物理学史》（第 2 版），清华大学出版社，2005，第一章。</p>
+        <p class="muted" style="margin:2px 0">· "electricus"命名与《论磁》（1600）：W. Gilbert, <i>De Magnete</i>，伦敦，1600 年。</p>
+        <p class="muted" style="margin:2px 0">· 电学史总体框架：E. Whittaker,《以太与电的理论史》（A History of the Theories of Aether and Electricity），1910 年。</p>
+        <p class="muted" style="margin:2px 0">· "摩擦起电 = 电荷转移"的现代表述：人民教育出版社《义务教育教科书·物理》九年级全一册，第十五章。</p>
+      </div>
+
+      <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:18px">
+        <h3 style="font-size:15px;font-weight:500">实验报告</h3>
+        <p class="muted" style="margin:8px 0">系统已汇总你的提问、实验记录与猜想。补一句"结论与反思"即可导出。</p>
+        <textarea id="concl" placeholder="结论与反思：对照真实历史，你的猜想对了几成？哪一步最出乎意料？"></textarea>
+        <div style="margin-top:10px">
+          <button class="btn" id="genBtn" style="margin-top:6px">生成报告</button>
+        </div>
+        <div id="reportOut"></div>
+        <div class="end-links" id="repBtns" style="display:none">
+          <button class="btn ghost" id="copyBtn" style="margin-top:0">📋 复制报告</button>
+          <button class="btn ghost" id="dlBtn" style="margin-top:0">⬇ 下载 .txt</button>
+        </div>
+      </div>
+
+      <div class="end-links">
+        <a class="btn ghost" href="index.html" style="text-decoration:none">← 返回发现之路</a>
+        <button class="btn" id="fbBtn">📝 花 30 秒反馈这一关</button>
+        <button class="btn ghost" onclick="location.reload()">↺ 再玩一遍</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>格物 GeWu · 电 01 琥珀之谜 · 原型 v0.3</span>
+    <span>动效 <a href="https://github.com/juliangarnier/anime" target="_blank">anime.js (MIT)</a> · 模拟思路参考 <a href="https://phet.colorado.edu/" target="_blank">PhET</a></span>
+  </footer>
+</div>
+
+<div class="pagenav">
+  <button id="prevB">← 上一页</button>
+  <span id="pnum">1 / 5</span>
+  <button id="nextB">下一页 →</button>
+</div>
+
+<script>
+/* ================= 工具 ================= */
+const $=id=>document.getElementById(id);
+const ease=t=>1-Math.pow(1-t,3);          // easeOutCubic
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function showStage(n){
+  document.querySelectorAll('.stage').forEach((s,i)=>s.classList.toggle('show',i===n-1));
+  const stps=document.querySelectorAll('#steps .stp');
+  stps.forEach((s,i)=>{s.className='stp'+(i<n-1?' done':(i===n-1?' on':''))});
+  if(window.anime){anime({targets:'.stage.show',opacity:[0,1],translateY:[16,0],duration:480,easing:'easeOutQuad'});}
+  window.scrollTo({top:0,behavior:'smooth'});
+  $('pnum').textContent=n+' / 5';
+  $('prevB').disabled=n===1;
+  $('nextB').disabled=n===5;
+  if(n===5)startTheatre();
+}
+$('prevB').onclick=()=>{const n=curStage()-1;if(n>=1)showStage(n);};
+$('nextB').onclick=()=>{const n=curStage()+1;if(n<=5)showStage(n);};
+function curStage(){return [...document.querySelectorAll('.stage')].findIndex(s=>s.classList.contains('show'))+1;}
+$('go2').onclick=()=>showStage(2);
+$('go3').onclick=()=>showStage(3);
+$('go4').onclick=()=>{
+  if(!$('nbIn').value.trim()){$('nbIn').style.borderColor='#e05b4b';$('nbIn').placeholder='先在本子上写下至少一句你的观察，再继续……';return;}
+  showStage(4);
+};
+$('go5').onclick=()=>showStage(5);
+
+/* ================= 1 现象动画 ================= */
+const cv1=$('cv1'),x1=cv1.getContext('2d');
+let sceneT=0,scenePlaying=false;
+const papers1=[];for(let i=0;i<7;i++)papers1.push({x:470+(i%4)*46,y:238+Math.floor(i/4)*30,ph:Math.random()*6});
+function drawScene1(t){ // t: 0..1
+  x1.clearRect(0,0,680,300);
+  x1.fillStyle='#f6f6f7';x1.fillRect(0,0,680,300);
+  // 头发与头（极简剪影）
+  const hx=150,hy=118;
+  x1.fillStyle='#17181c';
+  x1.beginPath();x1.arc(hx,hy,52,Math.PI*0.95,Math.PI*2.05);x1.fill();          // 头发
+  x1.fillStyle='#e9c39a';x1.beginPath();x1.arc(hx,hy+8,44,0,7);x1.fill();       // 脸
+  x1.fillStyle='#17181c';x1.beginPath();x1.arc(hx-18,hy+2,3.4,0,7);x1.fill();   // 眼
+  // 梳子沿弧线移动
+  const p=t<0.55?t/0.55:1;
+  const cx=70+ease(p)*190, cy=64+Math.sin(p*22)*7;
+  x1.fillStyle='#2c2e33';
+  roundRect(x1,cx,cy,76,18,4);x1.fill();
+  for(let i=0;i<8;i++){x1.fillRect(cx+5+i*9,cy+18,3.5,12);}
+  // 纸屑
+  const fly=t<0.7?0:ease(clamp((t-0.7)/0.3,0,1));
+  papers1.forEach(pp=>{
+    const fx=pp.x+((cx+38)-pp.x)*fly, fy=pp.y+((cy+40)-pp.y)*fly+Math.sin(t*14+pp.ph)*3*(1-fly);
+    x1.save();x1.translate(fx,fy);x1.rotate(pp.ph+t*(fly*2.2+0.05));
+    x1.fillStyle='#b8b0a0';x1.fillRect(-8,-5,16,10);x1.restore();
+  });
+  // 地面线
+  x1.strokeStyle='#e0e0e2';x1.beginPath();x1.moveTo(60,272);x1.lineTo(620,272);x1.stroke();
+  // 字幕
+  x1.fillStyle='#8b8b90';x1.font='13px sans-serif';x1.textAlign='center';
+  x1.fillText(t<0.55?'梳头……':t<0.7?'靠近纸屑……':'它们自己跳了起来',340,295);
+}
+function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function playScene1(){
+  sceneT=0;scenePlaying=true;
+  (function loop(){sceneT+=0.006;drawScene1(Math.min(sceneT,1));if(sceneT<1.05&&scenePlaying)requestAnimationFrame(loop);else scenePlaying=false;})();
+}
+drawScene1(0);
+$('btnScene').onclick=playScene1;
+playScene1();
+
+/* ================= 2 提问引导（规则版，正式替换为 AI） ================= */
+function guide(html,lv){
+  const r=$('qRe');
+  r.innerHTML=(lv===2?'★ ':lv===1?'☆ ':'')+html;
+  r.classList.add('show');
+  if(lv>=1)$('go3').style.display='inline-block';
+}
+$('askBtn').onclick=()=>{
+  const q=$('qIn').value.trim();
+  if(!q){guide('先写下一个问题——哪怕它看起来很幼稚。科学史上的大部分开端，都挺"幼稚"的。',0);return;}
+  const t=q;
+  if(/为什么|怎么|如何/.test(t)&&/吸|纸屑|梳/.test(t))guide('这正是吉尔伯特当年追问的问题：<b>隔空吸引纸屑的，到底是什么？</b>提示一个方向——摩擦前后，梳子本身有什么不一样了？去实验台亲手验证。',2);
+  else if(/湿|水/.test(t))guide('非常敏锐。水会对这种"东西"做什么？实验台上专门给你准备了"打湿梳子"的按钮，去把这个问题做出来。',2);
+  else if(/掉|掉落/.test(t))guide('你注意到了一个别人容易忽略的细节：吸住之后又掉落。是纸屑变了，还是梳子变了？实验时盯着记号的变化。',1);
+  else if(/头发|摩擦/.test(t))guide('对，可疑点就在"摩擦"这个动作上。两样东西摩擦时，它们之间可能发生了某种"交换"。去实验台试试。',1);
+  else if(/电|电荷/.test(t))guide('你自己想到了这个词——不是书上告诉你的。去实验台，用实验支撑你的直觉。',2);
+  else if(/[?？吗]/.test(t))guide('这是个值得动手验证的问题。带上它去实验台，让实验来回答。',1);
+  else guide('试着在问题里加上"为什么"或"会怎样"，它会更锋利。比如：为什么<b>摩擦过后</b>的梳子才能吸纸屑？',0);
+};
+
+/* ================= 3 实验台 ================= */
+const lab=$('lab'),lc=lab.getContext('2d');
+let charge=0,drag=false,px=140,py=120;
+const bits=[];for(let i=0;i<8;i++)bits.push({x:430+(i%4)*58,y:225+Math.floor(i/4)*48,vx:0,vy:0,stuck:false,ph:Math.random()*6,rot:Math.random()*0.5});
+function drawLab(){
+  lc.clearRect(0,0,680,320);
+  lc.fillStyle='#f6f6f7';lc.fillRect(0,0,680,320);
+  // 毛衣
+  lc.fillStyle='#eceef1';roundRect(lc,52,58,200,196,18);lc.fill();
+  lc.strokeStyle='#dcdfe4';lc.lineWidth=1;
+  for(let y=84;y<246;y+=20){lc.beginPath();lc.moveTo(64,y);lc.lineTo(240,y);lc.stroke();}
+  lc.fillStyle='#9a9ba1';lc.font='12px sans-serif';lc.textAlign='center';lc.fillText('毛衣 · 可摩擦',152,276);
+  // 桌沿
+  lc.strokeStyle='#e0e0e2';lc.beginPath();lc.moveTo(300,292);lc.lineTo(650,292);lc.stroke();
+  lc.fillText('纸屑',560,312);
+  // 纸屑
+  bits.forEach(b=>{
+    b.rot+=b.vx*0.002;
+    lc.save();lc.translate(b.x,b.y);lc.rotate(b.rot+Math.sin(b.ph+Date.now()*0.001)*0.05*(b.stuck?0:1));
+    lc.fillStyle=b.stuck?'#3056d3':'#c6bfae';lc.fillRect(-8,-5,16,10);lc.restore();
+  });
+  // 梳子阴影
+  lc.fillStyle='rgba(0,0,0,.06)';lc.beginPath();lc.ellipse(px+38,py+40,42,7,0,0,7);lc.fill();
+  // 梳子
+  lc.fillStyle='#2c2e33';roundRect(lc,px,py,76,19,4);lc.fill();
+  for(let i=0;i<8;i++)lc.fillRect(px+5+i*9,py+19,3.5,13);
+  if(charge>20)for(let i=0;i<6;i++){const a=Math.random()*7;lc.fillStyle='rgba(48,86,211,'+(0.25+Math.random()*0.4)+')';lc.beginPath();lc.arc(px+38+Math.cos(a)*44,py+14+Math.sin(a)*28,1.8,0,7);lc.fill();}
+}
+let lastT=performance.now();
+function loopLab(now){
+  const dt=Math.min((now-lastT)/16.7,3);lastT=now;
+  if(charge>0)charge=Math.max(0,charge-0.03*dt);
+  bits.forEach(b=>{
+    if(b.stuck){b.x+=((px+38)-b.x)*0.25*dt;b.y+=((py+34)-b.y)*0.25*dt;return;}
+    const dx=(px+38)-b.x,dy=(py+26)-b.y,d=Math.hypot(dx,dy)||1;
+    if(charge>18&&d<150){const f=(150-d)*0.012*charge/100;b.vx+=dx/d*f*dt*4;b.vy+=dy/d*f*dt*4;}
+    b.vy+=0.05*dt;                                   // 重力
+    b.vx*=Math.pow(0.94,dt);b.vy*=Math.pow(0.94,dt);
+    b.x+=b.vx*dt;b.y+=b.vy*dt;
+    if(b.y>262){b.y=262;b.vy=0;b.vx*=0.7;}           // 地面
+    const d2=Math.hypot((px+38)-b.x,(py+26)-b.y);
+    if(charge>18&&d2<16){b.stuck=true;}
+  });
+  $('fill').style.width=charge+'%';
+  drawLab();requestAnimationFrame(loopLab);
+}
+requestAnimationFrame(loopLab);
+lab.addEventListener('pointerdown',e=>{
+  const r=lab.getBoundingClientRect(),x=(e.clientX-r.left)*(680/r.width),y=(e.clientY-r.top)*(320/r.height);
+  if(x>px-16&&x<px+92&&y>py-16&&y<py+50){drag=true;lab.style.cursor='grabbing';lab.setPointerCapture(e.pointerId);}
+});
+lab.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  const r=lab.getBoundingClientRect(),x=(e.clientX-r.left)*(680/r.width),y=(e.clientY-r.top)*(320/r.height);
+  const nx=clamp(x-38,10,600),ny=clamp(y-14,10,240);
+  if(nx+38>62&&nx+38<244&&ny+10>58&&ny+10<250){charge=clamp(charge+Math.abs(nx-px)*0.5,0,100);}
+  px=nx;py=ny;
+});
+addEventListener('pointerup',()=>{drag=false;lab.style.cursor='grab';});
+$('wetBtn').onclick=function(){
+  charge=0;bits.forEach(b=>{b.stuck=false;b.vy=-1.5;});
+  this.textContent='已打湿 · 电荷随水流走了';setTimeout(()=>this.textContent='打湿梳子',1600);
+};
+$('resetBtn').onclick=()=>{charge=0;px=140;py=120;bits.length=0;for(let i=0;i<8;i++)bits.push({x:430+(i%4)*58,y:225+Math.floor(i/4)*48,vx:0,vy:0,stuck:false,ph:Math.random()*6,rot:0});};
+/* 实验提示：按需索取，共 2 条 */
+let labHintN=0;
+const labHints=[
+ '台上的每样东西都能"摆弄"：梳子可以拿起来拖动，毛衣区域似乎有点特别——把梳子<b>按在毛衣上摩擦几下</b>试试，然后去纸屑那儿转一圈。',
+ '试过<b>打湿梳子</b>吗？它在什么时候会让结果完全不同？对照"打湿前后"的差别，往往就是规律的所在。'
+];
+$('labHintBtn').onclick=()=>{
+  if(labHintN<labHints.length){
+    labHintN++;
+    $('labHint').innerHTML='<b>提示 '+labHintN+'/2：</b>'+labHints[labHintN-1];
+    $('labHint').classList.add('show');
+  }else{
+    $('labHint').innerHTML='<b>提示已用完。</b>把你已经看到的写进记录本就行——不完整也没关系。';
+    $('labHint').classList.add('show');
+    $('labHintBtn').disabled=true;
+  }
+};
+
+/* ================= 4 猜想（开放作答） ================= */
+$('gBtn').onclick=()=>{
+  const g=$('gIn').value.trim();
+  const r=$('gRe');
+  if(!g){r.innerHTML='先大胆写下一句猜想——写错了完全没关系，泰勒斯还猜过"琥珀里有灵魂"呢。';r.classList.add('show');return;}
+  const hasE=/电|电荷/.test(g), hasTrans=/转移|移动|跑|交换|摩擦/.test(g);
+  r.innerHTML='<b>你的猜想已被记录。</b>'+
+    (hasE?'你独立地走到了"电"这个概念面前——':'')+
+    '不管猜对猜错，历史上有资格评判它的人还没出生呢。现在去看看真实的答案，顺便对照一下：你的思路和他们的差在哪、像在哪。'+
+    (hasTrans&&hasE?'<br>（顺便说：你已经同时抓住"转移"和"电"两个关键——这正是现代物理的解释方向。）':'');
+  r.classList.add('show');
+  $('go5').style.display='inline-block';
+};
+
+/* ================= 5 史料剧场 ================= */
+const th=$('thc'),tc=th.getContext('2d');
+const SUB=(a,b,c)=>[[0,a],[4.5,b],[9.5,c]];
+const scenes=[
+ {name:'泰勒斯',meta:'约公元前 600 年 · 米利都（古希腊）',dur:15,bg:'#f6f6f7',
+  lines:SUB('约公元前 600 年，地中海边的希腊城邦米利都。',
+            '泰勒斯把琥珀在毛布上摩擦，地上的草屑竟然自己飞了起来、贴在琥珀上。',
+            '当时的人相信：琥珀里住着灵魂。这个误会，持续了两千多年。'),
+  draw(t){
+    const g=tc;g.fillStyle='#f6f6f7';g.fillRect(0,0,680,300);
+    g.strokeStyle='#dcdcdf';g.beginPath();g.moveTo(40,262);g.lineTo(640,262);g.stroke();
+    // 希腊柱
+    g.strokeStyle='#c9ccd4';g.lineWidth=3;
+    g.strokeRect(80,90,16,170);g.strokeRect(110,90,16,170);g.fillRect(72,80,62,10);g.fillRect(72,260,62,8);
+    g.lineWidth=1;
+    // 人物剪影（坐姿）
+    const f=tc;f.fillStyle='#2a2b30';
+    f.beginPath();f.arc(300,120,26,0,7);f.fill();                    // 头
+    f.beginPath();f.moveTo(272,150);f.quadraticCurveTo(300,140,328,150);f.lineTo(336,262);f.lineTo(264,262);f.closePath();f.fill(); // 长袍
+    // 手臂持琥珀，在毛布上摩擦
+    const rub=Math.sin(t*4.2)*16;
+    f.fillStyle='#2a2b30';roundRect2(f,330+2,196+rub*0.06,52,10,5);f.fill();   // 手臂
+    const ax=380+rub, ay=206;
+    f.fillStyle='#b96e35';roundRect2(f,ax,ay-14,30,20,6);f.fill();             // 琥珀
+    f.fillStyle='#8d8d93';roundRect2(f,352,210,84,12,3);f.fill();              // 毛布
+    // 草屑（t>0.45 后飞向琥珀）
+    for(let i=0;i<6;i++){
+      const gx=470+(i%3)*26, gy=252+Math.floor(i/3)*8;
+      const fly=ease(clamp((t-0.45-i*0.02)/0.35,0,1));
+      const fx=gx+(ax+15-gx)*fly, fy=gy+(ay-6-gy)*fly;
+      g.strokeStyle='#7d8a5e';g.lineWidth=1.6;
+      g.beginPath();g.moveTo(fx,fy);g.lineTo(fx+4,fy-7);g.stroke();g.lineWidth=1;
+    }
+    if(t>0.5)spark(ax+15,ay-18,3);
+  }},
+ {name:'吉尔伯特',meta:'1600 年 · 伦敦',dur:15,bg:'#f6f6f7',
+  lines:SUB('1600 年，伦敦。宫廷医生吉尔伯特出版了《论磁》。',
+            '他试了几十种材料：玻璃、宝石、硫磺、封蜡……摩擦之后，全都有吸引轻物的本领。',
+            '他给这种力量起名 electricus——"琥珀般的"。"电"这个词，从此诞生。'),
+  draw(t){
+    const g=tc;g.fillStyle='#f6f6f7';g.fillRect(0,0,680,300);
+    g.strokeStyle='#dcdcdf';g.beginPath();g.moveTo(40,262);g.lineTo(640,262);g.stroke();
+    // 桌
+    g.fillStyle='#e8e6df';roundRect2(g,120,180,420,14,4);g.fill();
+    g.fillStyle='#d8d5cc';g.fillRect(140,194,14,68);g.fillRect(506,194,14,68);
+    // 人物
+    g.fillStyle='#2a2b30';g.beginPath();g.arc(560,120,26,0,7);g.fill();
+    g.beginPath();g.moveTo(532,150);g.quadraticCurveTo(560,142,588,150);g.lineTo(596,262);g.lineTo(524,262);g.closePath();g.fill();
+    // 物品一排，逐个发光
+    const items=[['玻璃',200],['宝石',280],['硫磺',360],['封蜡',440]];
+    items.forEach((it,i)=>{
+      const on=ease(clamp((t-0.25-i*0.12)/0.2,0,1));
+      g.fillStyle=on>0.5?'#e8ecfb':'#fdfdfc';
+      g.strokeStyle='#3d3e44';
+      if(i===1){g.beginPath();g.moveTo(it[1],150);g.lineTo(it[1]+18,168);g.lineTo(it[1],186);g.lineTo(it[1]-18,168);g.closePath();g.stroke();g.fill();}
+      else{roundRect2(g,it[1]-18,150,36,36,5);g.stroke();g.fill();}
+      g.fillStyle='#8b8b90';g.font='11px sans-serif';g.textAlign='center';g.fillText(it[0],it[1],210);
+      if(on>0&&on<1)spark(it[1],140,2);
+    });
+    // electricus 打字机浮现
+    if(t>0.62){
+      const w='electricus',n=Math.floor(clamp((t-0.62)/0.18,0,1)*w.length);
+      g.fillStyle='#3056d3';g.font='600 30px Georgia,serif';g.textAlign='center';
+      g.fillText(w.slice(0,n),340,90);
+      g.strokeStyle='#3056d3';g.beginPath();g.moveTo(250,100);g.lineTo(430*(clamp((t-0.62)/0.3,0,1))+120,100);g.stroke();
+      g.fillStyle='#8b8b90';g.font='12px sans-serif';g.fillText('琥珀般的',340,118);
+    }
+  }},
+ {name:'富兰克林',meta:'1752 年 · 费城',dur:16,bg:'#1c2027',
+  lines:SUB('1752 年 7 月，费城，雷雨将至。',
+            '富兰克林和儿子把一只丝绸风筝送进雷雨云，麻绳末端只挂一把钥匙。',
+            '麻绳纤维上蹦出电火花——天上的雷电，和琥珀吸草屑的，是同一种东西。'),
+  draw(t){
+    const g=tc;g.fillStyle='#1c2027';g.fillRect(0,0,680,300);
+    // 云
+    g.fillStyle='#2a2f3a';
+    [[130,60,54],[210,48,64],[320,58,70],[440,50,58],[540,64,50]].forEach(c=>{g.beginPath();g.arc(c[0],c[1],c[2],0,7);g.fill();});
+    // 闪电（闪烁）
+    if(t>0.12&&Math.sin(t*40)>0){
+      g.strokeStyle='#e8d48b';g.lineWidth=2.4;g.beginPath();
+      let lx=300+Math.sin(t*3)*40,ly=20;g.moveTo(lx,ly);
+      for(let i=0;i<5;i++){lx+=(i%2?-1:1)*(14+Math.random()*10);ly+=34;g.lineTo(lx,ly);}
+      g.stroke();g.lineWidth=1;
+    }
+    // 地面
+    g.strokeStyle='#3a4050';g.beginPath();g.moveTo(40,262);g.lineTo(640,262);g.stroke();
+    // 人物（父子剪影）
+    g.fillStyle='#3d4453';
+    const bx=250;
+    g.beginPath();g.arc(bx,150,22,0,7);g.fill();
+    g.beginPath();g.moveTo(bx-22,176);g.lineTo(bx+22,176);g.lineTo(bx+16,262);g.lineTo(bx-16,262);g.closePath();g.fill();
+    g.beginPath();g.arc(bx+52,178,15,0,7);g.fill();
+    g.beginPath();g.moveTo(bx+36,196);g.lineTo(bx+68,196);g.lineTo(bx+64,262);g.lineTo(bx+40,262);g.closePath();g.fill();
+    // 风筝（随时间升高）
+    const kh=ease(clamp(t/0.4,0,1));
+    const kx=440+Math.sin(t*1.6)*14, ky=210-kh*150;
+    g.strokeStyle='#5a6070';g.beginPath();g.moveTo(kx,ky);g.lineTo(bx+20,200);g.stroke();   // 线
+    g.fillStyle='#8b93a8';g.beginPath();g.moveTo(kx,ky-26);g.lineTo(kx+20,ky);g.lineTo(kx,ky+26);g.lineTo(kx-20,ky);g.closePath();g.fill();
+    g.beginPath();g.moveTo(kx,ky-26);g.lineTo(kx,ky+26);g.moveTo(kx-20,ky);g.lineTo(kx+20,ky);g.strokeStyle='#5a6070';g.stroke();
+    // 钥匙与火花
+    g.fillStyle='#c9a94e';roundRect2(g,kx-6,ky+26,12,16,3);g.fill();
+    g.beginPath();g.arc(kx,ky+30,6,0,7);g.strokeStyle='#c9a94e';g.stroke();
+    if(t>0.55)spark(kx,ky+44,4,'#e8d48b');
+  }},
+];
+function roundRect2(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function spark(x,y,n,color){
+  const c=tc;c.fillStyle=color||'#3056d3';
+  for(let i=0;i<n*3;i++){const a=Math.random()*7,d=4+Math.random()*14;
+    c.beginPath();c.arc(x+Math.cos(a)*d,y+Math.sin(a)*d,1.3+Math.random()*1.2,0,7);c.fill();}
+}
+function avatar(i,x,y){ // 极简人像：发式区分时代
+  const c=tc;c.fillStyle='#2a2b30';
+  c.beginPath();c.arc(x,y,15,0,7);c.fillStyle='#d9c4a5';c.fill();
+  c.fillStyle='#2a2b30';
+  if(i===0){c.beginPath();c.arc(x,y-4,14,Math.PI,0);c.fill();}                      // 古希腊发髻
+  if(i===1){c.beginPath();c.arc(x,y-2,15,Math.PI*1.05,Math.PI*1.95);c.fill();       // 假发卷
+    c.beginPath();c.arc(x-11,y+2,5,0,7);c.arc(x+11,y+2,5,0,7);c.fill();}
+  if(i===2){c.beginPath();c.ellipse(x,y-6,13,9,0,Math.PI,0);c.fill();c.fillRect(x-13,y-8,26,4);} // 长发
+}
+let cur=0,thT=0,thPlay=false,thRaf=0;
+function drawTheatre(){
+  const s=scenes[cur];
+  tc.clearRect(0,0,680,300);
+  s.draw(thT);
+  // 人像铭牌
+  tc.fillStyle='rgba(255,255,255,.9)';
+  if(s.bg==='#1c2027')tc.fillStyle='rgba(28,32,39,.9)';
+  roundRect2(tc,18,16,190,54,10);tc.fill();
+  avatar(cur,48,43);
+  tc.fillStyle=s.bg==='#1c2027'?'#e8eaf0':'#17181c';tc.font='600 13px sans-serif';tc.textAlign='left';
+  tc.fillText(s.name,76,38);
+  tc.fillStyle=s.bg==='#1c2027'?'#9aa0ae':'#8b8b90';tc.font='11px sans-serif';
+  tc.fillText(s.meta,76,56);
+  // 字幕
+  let line='';
+  s.lines.forEach(l=>{if(thT>=l[0])line=l[1];});
+  const sub=$('thSub');sub.textContent=line;sub.style.opacity=line?1:0;
+  // dots
+  document.querySelectorAll('#thDots i').forEach((d,i)=>d.classList.toggle('on',i===cur));
+}
+function theatreLoop(){
+  if(thPlay){thT+=1/60;drawTheatre();if(thT<scenes[cur].dur)thRaf=requestAnimationFrame(theatreLoop);else thPlay=false;}
+}
+function startTheatre(){cur=0;thT=0;thPlay=true;drawTheatre();cancelAnimationFrame(thRaf);thRaf=requestAnimationFrame(theatreLoop);}
+$('thReplay').onclick=()=>{thT=0;thPlay=true;cancelAnimationFrame(thRaf);thRaf=requestAnimationFrame(theatreLoop);};
+$('thNext').onclick=()=>{
+  if(cur<scenes.length-1){cur++;thT=0;thPlay=true;cancelAnimationFrame(thRaf);thRaf=requestAnimationFrame(theatreLoop);}
+  else{
+    $('thEnd').style.display='block';
+    $('thEnd').scrollIntoView({behavior:'smooth',block:'nearest'});
+    try{const p=JSON.parse(localStorage.getItem('gewu-progress')||'{}');p.dian01=true;localStorage.setItem('gewu-progress',JSON.stringify(p));}catch(e){}
+  }
+};
+$('fbBtn').onclick=()=>alert('把腾讯问卷链接填到这里（game-friction.html 搜索 fbBtn）');
+
+/* ================= 实验报告 ================= */
+$('genBtn').onclick=()=>{
+  const L=[];
+  L.push('════ 实验报告 · 琥珀之谜（摩擦起电）════');
+  L.push('课程：格物 · 重走物理学史（电 01）');
+  L.push('日期：'+new Date().toLocaleDateString('zh-CN'));
+  L.push('');
+  L.push('【一、我的提问】');
+  L.push($('qIn').value.trim()||'（未填写）');
+  L.push('');
+  L.push('【二、实验记录】');
+  L.push($('nbIn').value.trim()||'（未填写）');
+  L.push('');
+  L.push('【三、我的猜想】');
+  L.push($('gIn').value.trim()||'（未填写）');
+  L.push('');
+  L.push('【四、结论与反思】');
+  L.push($('concl').value.trim()||'（未填写）');
+  L.push('');
+  L.push('【五、真实的历史结论】');
+  L.push('摩擦使电荷在物体间转移；吸引轻小物体的，是带电体周围的电的作用。');
+  L.push('');
+  L.push('【来源】Gilbert《De Magnete》1600；郭奕玲/沈慧君《物理学史》清华出版社 2005；Whittaker《A History of the Theories of Aether and Electricity》1910。');
+  const txt=L.join('\n');
+  const out=$('reportOut');out.textContent=txt;out.style.display='block';
+  $('repBtns').style.display='flex';
+  out.dataset.txt=txt;
+  if(window.anime)anime({targets:'#reportOut',opacity:[0,1],duration:500,easing:'easeOutQuad'});
+  $('repBtns').scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+$('copyBtn').onclick=()=>{
+  const t=$('reportOut').dataset.txt;
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>{$('copyBtn').textContent='✓ 已复制';setTimeout(()=>$('copyBtn').textContent='📋 复制报告',1500);});
+  else{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}
+};
+$('dlBtn').onclick=()=>{
+  const blob=new Blob([$('reportOut').dataset.txt],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='实验报告-琥珀之谜.txt';a.click();URL.revokeObjectURL(a.href);
+};
+drawTheatre();
+</script>
+</body>
+</html>
